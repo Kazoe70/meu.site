@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FilaFácil - Evite Filas nos Supermercados</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css"> <!-- Link para o CSS externo -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Incluindo Chart.js -->
+    <style>
+        /* Estilo Adicional para o Mapa */
+        /* Estilo para a seção de feedback */
+        .feedback {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        #mapa {
+            position: relative;
+            width: 100%;
+            height: 400px; /* Altura do mapa */
+            background-color: #eaeaea; /* Cor de fundo para o mapa */
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .prateleira {
+            position: absolute;
+            width: 80px;
+            height: 200px;
+            background-color: #007bff; /* Azul */
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .localizacao {
+            position: absolute;
+            display: none; /* Esconde o ícone inicialmente */
+            width: 30px;
+            height: 30px;
+            background-color: red; /* Cor do ícone de localização */
+            border-radius: 50%;
+            transform: translate(-50%, -100%); /* Para centralizar o ícone */
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: #007bff; /* Azul */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* Estilo para gráficos escondidos */
+        .hidden {
+            display: none;
+        }
+
+        /* Estilo para a seção de gráficos dos supermercados */
+        .supermercado-graficos {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        /* Estilo para as estrelas */
+        .estrela {
+            font-size: 24px;
+            color: gold;
+            cursor: pointer;
+        }
+        .estrela.vazia {
+            color: lightgray;
+        }
+    </style>
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header>
+        <div class="container">
+            <div class="logo">FilaFácil</div>
+            <nav>
+                <ul>
+                    <li><a href="#como-funciona">Como Funciona</a></li>
+                    <li><a href="#horarios">Horários Ideais</a></li>
+                    <li><a href="#mapa">Mapeamento de Supermercados</a></li>
+                    <li><a href="#feedback">Feedback</a></li>
+                    <li><a href="#supermercados">Escolha seu Supermercado</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Seção Principal -->
+    <section class="hero">
+        <div class="hero-text">
+            <h1>Descubra os melhores horários para evitar filas no supermercado!</h1>
+            <a href="#horarios" class="btn">Ver Horários Ideais</a>
+        </div>
+    </section>
+
+    <!-- Seção de Como Funciona -->
+    <section id="como-funciona" class="como-funciona">
+        <div class="container">
+            <h2>Como Funciona</h2>
+            <p>O FilaFácil analisa dados de movimentação de clientes em supermercados, oferecendo informações sobre os melhores horários para visitação e evitando filas longas.</p>
+            <h3>Passo a Passo:</h3>
+            <ol>
+                <li>Escolha seu supermercado.</li>
+                <li>Veja os melhores horários.</li>
+                <li>Chegue e economize tempo!</li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- Seção de Horários Ideais -->
+    <section id="horarios" class="horarios">
+        <div class="container">
+            <h2>Horários Ideais para Ir ao Supermercado</h2>
+            <p>Verifique os melhores horários para evitar filas, com base na média de todos os supermercados analisados!</p>
+            <div class="chart-container">
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Escolha de Supermercados -->
+    <section id="supermercados" class="supermercados">
+        <div class="container">
+            <h2>Escolha seu Supermercado</h2>
+            <ul>
+                <li><a href="#supermercado1" class="btn">Supermercado Carone</a></li>
+                <li><a href="#supermercado2" class="btn">Supermercado Pão de Açúcar</a></li>
+                <li><a href="#supermercado3" class="btn">Supermercado Centro de Compras (SCC)</a></li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Gráficos para Supermercados -->
+    <section id="graficos-supermercados" class="supermercado-graficos hidden">
+        <div class="container">
+            <h2>Gráficos dos Supermercados</h2>
+            <div id="supermercado1" class="supermercado">
+                <h3>Supermercado Carone</h3>
+                <canvas id="chartSupermercadoA"></canvas>
+            </div>
+            <div id="supermercado2" class="supermercado">
+                <h3>Supermercado Pão de Açúcar</h3>
+                <canvas id="chartSupermercadoB"></canvas>
+            </div>
+            <div id="supermercado3" class="supermercado">
+                <h3>Supermercado Centro de Compras (SCC)</h3>
+                <canvas id="chartSupermercadoC"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Feedback -->
+    <section id="feedback" class="feedback">
+        <div class="container">
+            <h2>Feedback dos Usuários</h2>
+            <form id="feedbackForm">
+                <div class="estrela-container">
+                    <span class="estrela" data-value="1">★</span>
+                    <span class="estrela" data-value="2">★</span>
+                    <span class="estrela" data-value="3">★</span>
+                    <span class="estrela" data-value="4">★</span>
+                    <span class="estrela" data-value="5">★</span>
+                </div>
+                <textarea id="feedbackInput" placeholder="Deixe seu feedback aqui..." required></textarea>
+                <button type="submit" class="btn">Enviar Feedback</button>
+            </form>
+            <ul id="feedbackList"></ul>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer>
+        <div class="container">
+            <p>© 2024 FilaFácil. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Gráficos de Supermercados
+        document.querySelectorAll('.supermercados a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.supermercado-graficos .supermercado').forEach(grafico => {
+                    grafico.style.display = 'none';
+                });
+
+                const target = this.getAttribute('href');
+                document.querySelector(target).style.display = 'block';
+                document.getElementById('graficos-supermercados').classList.remove('hidden');
+
+                // Gerar gráficos específicos para o supermercado selecionado
+                switch (target) {
+                    case '#supermercado1':
+                        criarGrafico('chartSupermercadoA', [5, 10, 15, 20, 25, 30], 'Movimentação de Clientes - Supermercado Carone');
+                        break;
+                    case '#supermercado2':
+                        criarGrafico('chartSupermercadoB', [15, 20, 25, 10, 5, 3], 'Movimentação de Clientes - Supermercado Pão de Açúcar');
+                        break;
+                    case '#supermercado3':
+                        criarGrafico('chartSupermercadoC', [20, 15, 10, 5, 3, 8], 'Movimentação de Clientes - Supermercado SCC');
+                        break;
+                }
+            });
+        });
+
+        // Função para criar gráficos
+        function criarGrafico(canvasId, data, label) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00'],
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderWidth: 2,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Número de Clientes'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Horários'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'black'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Gráfico geral de horários ideais
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const dadosSupermercadoA = [10, 5, 20, 15, 30, 25]; // Supermercado Carone
+        const dadosSupermercadoB = [15, 10, 25, 20, 35, 30]; // Supermercado Pão de Açúcar
+        const dadosSupermercadoC = [20, 15, 10, 5, 25, 20]; // Supermercado SCC
+        
+        // Cálculo da média
+        const media = dadosSupermercadoA.map((_, i) => {
+            return (dadosSupermercadoA[i] + dadosSupermercadoB[i] + dadosSupermercadoC[i]) / 3;
+        });
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00'],
+                datasets: [{
+                    label: 'Média de Filas (minutos de espera)',
+                    data: media,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 2,
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Tempo de Espera (minutos)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Horários'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: 'black'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Feedback
+        document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const feedbackInput = document.getElementById('feedbackInput');
+            const feedbackList = document.getElementById('feedbackList');
+            const rating = document.querySelector('input[name="rating"]:checked') ? document.querySelector('input[name="rating"]:checked').value : 'Sem Avaliação';
+
+            // Adiciona feedback à lista
+            const listItem = document.createElement('li');
+            listItem.textContent = `Avaliação: ${rating} Estrelas - Comentário: ${feedbackInput.value}`;
+            feedbackList.appendChild(listItem);
+
+            // Limpa o campo de feedback
+            feedbackInput.value = '';
+        });
+
+        // Estrelas para Avaliação
+        const estrelas = document.querySelectorAll('.estrela');
+        estrelas.forEach((estrela, index) => {
+            estrela.addEventListener('click', function() {
+                estrelas.forEach((s, i) => {
+                    s.classList.toggle('vazia', i > index);
+                });
+                document.querySelector('input[name="rating"]').value = index + 1;
+            });
+        });
+    </script>
+</body>
+</html>
